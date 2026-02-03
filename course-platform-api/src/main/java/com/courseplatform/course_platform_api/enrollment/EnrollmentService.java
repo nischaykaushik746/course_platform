@@ -22,6 +22,10 @@ public class EnrollmentService {
 
     public EnrollmentResponse enroll(User user, String courseId) {
 
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
+        }
+
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Course not found"));
@@ -33,7 +37,7 @@ public class EnrollmentService {
                 });
 
         Enrollment enrollment = Enrollment.builder()
-                .user(user)
+                .user(user)                 // ✅ FIX
                 .course(course)
                 .enrolledAt(Instant.now())
                 .build();
@@ -48,4 +52,3 @@ public class EnrollmentService {
                 .build();
     }
 }
-

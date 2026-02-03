@@ -21,7 +21,8 @@ public class ProgressService {
 
     public ProgressItemDto completeSubtopic(User user, String subtopicId) {
 
-        Subtopic subtopic = subtopicRepository.findById(subtopicId)
+        // 🔥 IMPORTANT CHANGE IS HERE
+        Subtopic subtopic = subtopicRepository.findByIdWithCourse(subtopicId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Subtopic not found"));
 
@@ -69,26 +70,17 @@ public class ProgressService {
 
         Course course = enrollment.getCourse();
 
-        int totalSubtopics = course.getTopics().stream()
-                .mapToInt(t -> t.getSubtopics().size())
-                .sum();
+        long totalSubtopics =
+                progressRepository.countSubtopicsByCourse(course);
 
         List<SubtopicProgress> completed =
-                progressRepository.findByUser(user).stream()
-                        .filter(p -> p.getSubtopic()
-                                .getTopic()
-                                .getCourse()
-                                .getId()
-                                .equals(course.getId()))
-                        .toList();
+                progressRepository.findByUserAndCourse(user, course);
 
         int completedCount = completed.size();
 
         double percentage = totalSubtopics == 0
                 ? 0
-                : Math.round(
-                ((double) completedCount / totalSubtopics) * 10000
-        ) / 100.0;
+                : Math.round(((double) completedCount / totalSubtopics) * 10000) / 100.0;
 
         List<ProgressItemDto> items = completed.stream()
                 .map(p -> ProgressItemDto.builder()
@@ -102,11 +94,10 @@ public class ProgressService {
                 .enrollmentId(enrollment.getId())
                 .courseId(course.getId())
                 .courseTitle(course.getTitle())
-                .totalSubtopics(totalSubtopics)
+                .totalSubtopics((int) totalSubtopics)
                 .completedSubtopics(completedCount)
                 .completionPercentage(percentage)
                 .completedItems(items)
                 .build();
     }
 }
-

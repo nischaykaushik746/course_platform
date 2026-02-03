@@ -22,11 +22,13 @@ public class Enrollment {
     private Long id;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    @Column(nullable = false)
     private Instant enrolledAt;
 }
-
