@@ -21,7 +21,6 @@ public class ProgressService {
 
     public ProgressItemDto completeSubtopic(User user, String subtopicId) {
 
-        // 🔥 IMPORTANT CHANGE IS HERE
         Subtopic subtopic = subtopicRepository.findByIdWithCourse(subtopicId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Subtopic not found"));

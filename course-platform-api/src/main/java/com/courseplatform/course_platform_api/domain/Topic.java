@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "topics")
@@ -26,7 +26,13 @@ public class Topic {
     @JsonIgnore
     private Course course;
 
-    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Subtopic> subtopics;
+    @OneToMany(
+            mappedBy = "topic",
+            cascade = CascadeType.ALL
+    )
+    private Set<Subtopic> subtopics;
+
+
+
 }
 

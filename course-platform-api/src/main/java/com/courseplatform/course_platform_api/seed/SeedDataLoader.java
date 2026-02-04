@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Component
@@ -44,8 +45,9 @@ public class SeedDataLoader {
                         .id(courseDto.getId())
                         .title(courseDto.getTitle())
                         .description(courseDto.getDescription())
-                        .topics(new ArrayList<>())
+                        .topics(new HashSet<>())
                         .build();
+
 
                 for (SeedTopicDto topicDto : courseDto.getTopics()) {
 
@@ -53,8 +55,9 @@ public class SeedDataLoader {
                             .id(topicDto.getId())
                             .title(topicDto.getTitle())
                             .course(course)
-                            .subtopics(new ArrayList<>())
+                            .subtopics(new HashSet<>())
                             .build();
+
 
                     for (SeedSubtopicDto subtopicDto : topicDto.getSubtopics()) {
 

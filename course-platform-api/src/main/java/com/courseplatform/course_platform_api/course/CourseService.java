@@ -17,7 +17,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     public CourseListResponse getAllCourses() {
-        List<CourseSummaryDto> summaries = courseRepository.findAll()
+        List<CourseSummaryDto> summaries = courseRepository.findAllWithTopics()
                 .stream()
                 .map(this::toSummaryDto)
                 .toList();
@@ -28,13 +28,15 @@ public class CourseService {
     }
 
     public CourseDetailDto getCourseById(String courseId) {
-        Course course = courseRepository.findById(courseId)
+        Course course = courseRepository.findByIdWithTopics(courseId)
                 .orElseThrow(() -> new RuntimeException("Course not found"));
 
         return toDetailDto(course);
     }
 
+
     private CourseSummaryDto toSummaryDto(Course course) {
+
         int topicCount = course.getTopics().size();
         int subtopicCount = course.getTopics()
                 .stream()
@@ -51,7 +53,9 @@ public class CourseService {
     }
 
     private CourseDetailDto toDetailDto(Course course) {
-        List<TopicDto> topics = course.getTopics().stream()
+
+        List<TopicDto> topics = course.getTopics()
+                .stream()
                 .map(this::toTopicDto)
                 .toList();
 
@@ -64,7 +68,9 @@ public class CourseService {
     }
 
     private TopicDto toTopicDto(Topic topic) {
-        List<SubtopicDto> subtopics = topic.getSubtopics().stream()
+
+        List<SubtopicDto> subtopics = topic.getSubtopics()
+                .stream()
                 .map(this::toSubtopicDto)
                 .toList();
 
@@ -76,6 +82,7 @@ public class CourseService {
     }
 
     private SubtopicDto toSubtopicDto(Subtopic subtopic) {
+
         return SubtopicDto.builder()
                 .id(subtopic.getId())
                 .title(subtopic.getTitle())
@@ -83,4 +90,3 @@ public class CourseService {
                 .build();
     }
 }
-

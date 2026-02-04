@@ -12,4 +12,3 @@ public class ProgressItemDto {
     private String subtopicTitle;
     private Instant completedAt;
 }
-

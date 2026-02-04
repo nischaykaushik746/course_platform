@@ -4,8 +4,10 @@ import com.courseplatform.course_platform_api.auth.dto.*;
 import com.courseplatform.course_platform_api.domain.User;
 import com.courseplatform.course_platform_api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -15,9 +17,11 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public void register(RegisterRequest request) {
+    public RegisterResponse register(RegisterRequest request) {
+
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "Email already exists");
         }
 
         User user = User.builder()
@@ -25,15 +29,24 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
-        userRepository.save(user);
+        User saved = userRepository.save(user);
+
+        return RegisterResponse.builder()
+                .id(saved.getId())
+                .email(saved.getEmail())
+                .message("User registered successfully")
+                .build();
     }
 
     public AuthResponse login(LoginRequest request) {
+
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid credentials"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
 
         String token = jwtUtil.generateToken(user.getEmail());
@@ -45,4 +58,3 @@ public class AuthService {
                 .build();
     }
 }
-
